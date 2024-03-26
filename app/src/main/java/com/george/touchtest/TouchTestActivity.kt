@@ -4,6 +4,7 @@ package com.george.touchtest
 
 import android.graphics.PointF
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,10 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -37,44 +36,69 @@ class TouchTestActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    var point by remember {
-                        mutableStateOf<PointF?>(null)
+                    val pointers = remember {
+                        mutableStateMapOf<Int, PointF>()
                     }
 
                     Box(
                         contentAlignment = Alignment.Center
                     ) {
+                        val points = pointers.values
+
                         Canvas(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .pointerInteropFilter { motionEvent ->
-                                    point = if (motionEvent.action != MotionEvent.ACTION_UP) {
-                                        PointF(motionEvent.x, motionEvent.y)
-                                    } else {
-                                        null
+                                    Log.d(TAG, "$motionEvent")
+
+                                    when (motionEvent.action) {
+                                        MotionEvent.ACTION_UP -> {
+                                            pointers.clear()
+                                        }
+
+                                        MotionEvent.ACTION_POINTER_UP -> {
+                                            val cnt = motionEvent.pointerCount
+                                            pointers.remove(cnt - 1)
+                                        }
+
+                                        else -> {
+                                            val cnt = motionEvent.pointerCount
+                                            for (i in 0 until cnt) {
+                                                val point = PointF(
+                                                    motionEvent.getX(i),
+                                                    motionEvent.getY(i)
+                                                )
+                                                pointers[i] = point
+                                            }
+                                        }
                                     }
                                     true
                                 }
                         ) {
                             drawRect(color = Color.Black, size = size)
 
-                            point?.run {
+                            points.map {
                                 drawLine(
                                     color = Color.White,
-                                    start = Offset(x, 0f),
-                                    end = Offset(x, size.height)
+                                    start = Offset(it.x, 0f),
+                                    end = Offset(it.x, size.height)
                                 )
                                 drawLine(
                                     color = Color.White,
-                                    start = Offset(0f, y),
-                                    end = Offset(size.width, y),
+                                    start = Offset(0f, it.y),
+                                    end = Offset(size.width, it.y),
                                 )
                             }
                         }
 
-                        val text = point?.run {
-                            "x: $x : y: $y"
-                        } ?: "No touch detected"
+                        val text = if (points.isNotEmpty()) {
+                            val stringBuilder = StringBuilder()
+                            points.forEach {
+                                stringBuilder.append("x: ${it.x} : y: ${it.y}")
+                                stringBuilder.appendLine()
+                            }
+                            stringBuilder.toString()
+                        } else "No touch detected"
 
                         Text(
                             text = text,

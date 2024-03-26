@@ -33,6 +33,7 @@ import com.george.touchtest.ui.theme.TouchTestTheme
 import kotlin.math.max
 import kotlin.math.min
 
+const val TAG = "TouchTest"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
         val dm = applicationContext.getSystemService(DISPLAY_SERVICE) as DisplayManager
         val displayIds = dm.displays.map { it.displayId }
 
-        Log.d("TouchTest", "available screen Ids $displayIds")
+        Log.d(TAG, "available screen Ids $displayIds")
 
         setContent {
             TouchTestTheme {
