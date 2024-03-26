@@ -26,6 +26,10 @@ import androidx.core.view.WindowCompat
 import com.george.touchtest.ui.theme.TouchTestTheme
 
 class TouchTestActivity : ComponentActivity() {
+
+    private val lightColors =
+        listOf(Color.Cyan, Color.Yellow, Color.Magenta, Color.Red, Color.Green)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -77,16 +81,17 @@ class TouchTestActivity : ComponentActivity() {
                         ) {
                             drawRect(color = Color.Black, size = size)
 
-                            points.map {
+                            points.mapIndexed { index, pointF ->
+                                val color = getColorByIndex(index)
                                 drawLine(
-                                    color = Color.White,
-                                    start = Offset(it.x, 0f),
-                                    end = Offset(it.x, size.height)
+                                    color = color,
+                                    start = Offset(pointF.x, 0f),
+                                    end = Offset(pointF.x, size.height)
                                 )
                                 drawLine(
-                                    color = Color.White,
-                                    start = Offset(0f, it.y),
-                                    end = Offset(size.width, it.y),
+                                    color = color,
+                                    start = Offset(0f, pointF.y),
+                                    end = Offset(size.width, pointF.y),
                                 )
                             }
                         }
@@ -109,5 +114,10 @@ class TouchTestActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun getColorByIndex(index: Int): Color {
+        val rem = index % lightColors.size
+        return lightColors[rem]
     }
 }
