@@ -10,7 +10,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val options = ActivityOptions.makeBasic().apply {
-            //launchDisplayId = 4
+            launchDisplayId = 4
         }
         val intent = Intent(this, TouchTestActivity::class.java)
         startActivity(intent, options.toBundle())
