@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -86,9 +85,15 @@ private fun DisplayIdSelector(
     }
     Column(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(
+            space = 48.dp,
+            alignment = Alignment.CenterVertically
+        ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Text(text = "Available screenIds $displayIds",)
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(
@@ -97,7 +102,7 @@ private fun DisplayIdSelector(
             )
         ) {
 
-            Text(text = "ScreenId")
+            Text(text = "ScreenId to test ->")
 
             Text(text = displayIds[screenIdIndex].toString())
 
@@ -123,7 +128,6 @@ private fun DisplayIdSelector(
             }
         }
         Button(
-            modifier = Modifier.padding(top = 64.dp),
             onClick = {
                 onLaunchClick(screenIdIndex)
             }
