@@ -42,7 +42,7 @@ class TouchTestActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    var pointers by remember {
+                    var currentTouches by remember {
                         mutableStateOf<List<PointF>>(emptyList())
                     }
 
@@ -64,14 +64,14 @@ class TouchTestActivity : ComponentActivity() {
                                         } else {
                                             val maskedAction = action and MotionEvent.ACTION_MASK
                                             if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
-                                                val droppedIndex =
+                                                val uppedPointerIndex =
                                                     action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
 
-                                                val visibleTouches = mutableListOf<PointF>()
+                                                val res = mutableListOf<PointF>()
 
                                                 for (i in 0 until pointerCount) {
-                                                    if (i != droppedIndex) {
-                                                        visibleTouches.add(
+                                                    if (i != uppedPointerIndex) {
+                                                        res.add(
                                                             PointF(
                                                                 motionEvent.getX(i),
                                                                 motionEvent.getY(i)
@@ -80,7 +80,7 @@ class TouchTestActivity : ComponentActivity() {
                                                     }
                                                 }
 
-                                                visibleTouches
+                                                res
                                             } else {
                                                 List(pointerCount) { i ->
                                                     PointF(
@@ -92,13 +92,13 @@ class TouchTestActivity : ComponentActivity() {
                                         }
 
                                     Log.d(TAG, "visibleTouch $visibleTouch")
-                                    pointers = visibleTouch
+                                    currentTouches = visibleTouch
                                     true
                                 }
                         ) {
                             drawRect(color = Color.Black, size = size)
 
-                            pointers.mapIndexed { index, pointF ->
+                            currentTouches.mapIndexed { index, pointF ->
                                 val color = getColorByIndex(index)
                                 drawLine(
                                     color = color,
@@ -113,9 +113,9 @@ class TouchTestActivity : ComponentActivity() {
                             }
                         }
 
-                        val text = if (pointers.isNotEmpty()) {
+                        val text = if (currentTouches.isNotEmpty()) {
                             val stringBuilder = StringBuilder()
-                            pointers.forEach {
+                            currentTouches.forEach {
                                 stringBuilder.append("x: ${it.x} : y: ${it.y}")
                                 stringBuilder.appendLine()
                             }
