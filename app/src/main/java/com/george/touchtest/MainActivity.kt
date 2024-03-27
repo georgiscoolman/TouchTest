@@ -70,7 +70,9 @@ class MainActivity : ComponentActivity() {
         val options = ActivityOptions.makeBasic().apply {
             launchDisplayId = screenId
         }
-        val intent = Intent(this, TouchTestActivity::class.java)
+        val intent = Intent(this, TouchTestActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        }
         startActivity(intent, options.toBundle())
     }
 }
@@ -92,7 +94,7 @@ private fun DisplayIdSelector(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(text = "Available screenIds $displayIds",)
+        Text(text = "Available screenIds $displayIds")
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
