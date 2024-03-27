@@ -110,7 +110,10 @@ private fun DisplayIdSelector(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(onClick = {
-                    screenIdIndex = min(screenIdIndex++, displayIds.lastIndex)
+                    val next = screenIdIndex + 1
+                    val nextIndex = min(next, displayIds.lastIndex)
+                    Log.d(TAG,"nextIndex $nextIndex")
+                    screenIdIndex = nextIndex
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowUp,
@@ -118,7 +121,10 @@ private fun DisplayIdSelector(
                     )
                 }
                 Button(onClick = {
-                    screenIdIndex = max(screenIdIndex--, 0)
+                    val prev = screenIdIndex - 1
+                    val prevIndex = max(prev, 0)
+                    Log.d(TAG,"prevIndex $prevIndex")
+                    screenIdIndex = prevIndex
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowDown,
