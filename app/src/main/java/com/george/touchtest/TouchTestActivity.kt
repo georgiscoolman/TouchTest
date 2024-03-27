@@ -62,16 +62,14 @@ class TouchTestActivity : ComponentActivity() {
                                         if (action == MotionEvent.ACTION_UP) {
                                             emptyList()
                                         } else {
-                                            val maskedAction = action and MotionEvent.ACTION_MASK
-                                            if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
-                                                val uppedPointerIndex =
-                                                    action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
+                                            if (motionEvent.actionMasked == MotionEvent.ACTION_POINTER_UP) {
+                                                val uppedPointerIndex = motionEvent.actionIndex
 
-                                                val res = mutableListOf<PointF>()
+                                                val pointsWithoutUpped = mutableListOf<PointF>()
 
                                                 for (i in 0 until pointerCount) {
                                                     if (i != uppedPointerIndex) {
-                                                        res.add(
+                                                        pointsWithoutUpped.add(
                                                             PointF(
                                                                 motionEvent.getX(i),
                                                                 motionEvent.getY(i)
@@ -80,7 +78,7 @@ class TouchTestActivity : ComponentActivity() {
                                                     }
                                                 }
 
-                                                res
+                                                pointsWithoutUpped
                                             } else {
                                                 List(pointerCount) { i ->
                                                     PointF(
