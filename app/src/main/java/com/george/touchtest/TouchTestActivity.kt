@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalComposeUiApi::class)
+@file:OptIn(ExperimentalComposeUiApi::class, ExperimentalComposeUiApi::class)
 
 package com.george.touchtest
 
@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -40,48 +42,63 @@ class TouchTestActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    val pointers = remember {
-                        mutableStateMapOf<Int, PointF>()
+                    var pointers by remember {
+                        mutableStateOf<List<PointF>>(emptyList())
                     }
 
                     Box(
                         contentAlignment = Alignment.Center
                     ) {
-                        val points = pointers.values
-
                         Canvas(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .pointerInteropFilter { motionEvent ->
-                                    Log.d(TAG, "$motionEvent")
+                                    val action = motionEvent.action
+                                    val pointerCount = motionEvent.pointerCount
 
-                                    when (motionEvent.action) {
-                                        MotionEvent.ACTION_UP -> {
-                                            pointers.clear()
-                                        }
+                                    Log.d(TAG, "pointerCount $pointerCount $motionEvent")
 
-                                        MotionEvent.ACTION_POINTER_UP -> {
-                                            val cnt = motionEvent.pointerCount
-                                            pointers.remove(cnt - 1)
-                                        }
+                                    val visibleTouch: List<PointF> =
+                                        if (action == MotionEvent.ACTION_UP) {
+                                            emptyList()
+                                        } else {
+                                            val maskedAction = action and MotionEvent.ACTION_MASK
+                                            if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
+                                                val droppedIndex =
+                                                    action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
 
-                                        else -> {
-                                            val cnt = motionEvent.pointerCount
-                                            for (i in 0 until cnt) {
-                                                val point = PointF(
-                                                    motionEvent.getX(i),
-                                                    motionEvent.getY(i)
-                                                )
-                                                pointers[i] = point
+                                                val visibleTouches = mutableListOf<PointF>()
+
+                                                for (i in 0 until pointerCount) {
+                                                    if (i != droppedIndex) {
+                                                        visibleTouches.add(
+                                                            PointF(
+                                                                motionEvent.getX(i),
+                                                                motionEvent.getY(i)
+                                                            )
+                                                        )
+                                                    }
+                                                }
+
+                                                visibleTouches
+                                            } else {
+                                                List(pointerCount) { i ->
+                                                    PointF(
+                                                        motionEvent.getX(i),
+                                                        motionEvent.getY(i)
+                                                    )
+                                                }
                                             }
                                         }
-                                    }
+
+                                    Log.d(TAG, "visibleTouch $visibleTouch")
+                                    pointers = visibleTouch
                                     true
                                 }
                         ) {
                             drawRect(color = Color.Black, size = size)
 
-                            points.mapIndexed { index, pointF ->
+                            pointers.mapIndexed { index, pointF ->
                                 val color = getColorByIndex(index)
                                 drawLine(
                                     color = color,
@@ -96,9 +113,9 @@ class TouchTestActivity : ComponentActivity() {
                             }
                         }
 
-                        val text = if (points.isNotEmpty()) {
+                        val text = if (pointers.isNotEmpty()) {
                             val stringBuilder = StringBuilder()
-                            points.forEach {
+                            pointers.forEach {
                                 stringBuilder.append("x: ${it.x} : y: ${it.y}")
                                 stringBuilder.appendLine()
                             }
